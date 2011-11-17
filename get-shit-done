@@ -5,8 +5,10 @@
     exit 1;
 }
 
+action="$1"
 hostfile=/etc/hosts
 backupfile=$hostfile.orig
+blacklistedhostfile=$hostfile.blacklist
 
 blacklist=( 'reddit.com'  
     'forums.somethingawful.com'  
@@ -35,29 +37,36 @@ blacklist=( 'reddit.com'
     'yelp.com'
     'slashdot.org' )
 
-case $1 in
-work)
-    [[ -e $backupfile ]] && {
-        exit 1
+function initialize() {
+    [[ ! -e $backupfile ]] && {
+        \cp $hostfile $backupfile
     }
-    \cp $hostfile $backupfile
-    for site in $blacklist; do
-        print -- "127.0.0.1\t$site" 
-        print -- "127.0.0.1\twww.$site" 
-    done >> $hostfile 
-    ;;
-play)
-    \cp $backupfile $hostfile && \rm $backupfile 
-    ;;
-*) 
-    { 
-        print -- "I don't know this option: '$*'"
-        print -- "use ${0:t} work or ${0:t} play"
-        exit 1
-    } >&2
-esac
+    [[ ! -e $blacklistedhostfile ]] && {
+        \cp $hostfile $blacklistedhostfile
+        for site in $blacklist; do
+            print -- "127.0.0.1\t$site" 
+            print -- "127.0.0.1\twww.$site" 
+        done >> $blacklistedhostfile
+    }
+}
 
-[[ -e /etc/init.d/networking ]] && {
-    /etc/init.d/networking stop && 
-    /etc/init.d/networking start
-} >/dev/null >&2
+function switch_hostfile() {
+case $action in
+    work)
+        \cp $blacklistedhostfile $hostfile
+        ;;
+    play|pause)
+        \cp $backupfile $hostfile
+        ;;
+    *) 
+        { 
+            print -- "I don't know this option: '$*'"
+            print -- "use ${0:t} work or ${0:t} play"
+            exit 1
+        } >&2
+esac
+}
+
+# create backupfile and blacklisted file
+initialize
+switch_hostfile
