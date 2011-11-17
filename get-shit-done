@@ -58,4 +58,6 @@ play)
     } >&2
 esac
 
-[[ -e /etc/init.d/networking ]] && /etc/init.d/networking restart
+[[ -e /etc/init.d/networking ]] && \
+    /etc/init.d/networking stop && \
+    /etc/init.d/networking start
