@@ -38,7 +38,6 @@ blacklist=( 'reddit.com'
 case $1 in
 work)
     [[ -e $backupfile ]] && {
-        print -- "$backupfile already exists, wou are in working mode" >&2
         exit 1
     }
     \cp $hostfile $backupfile
@@ -58,6 +57,7 @@ play)
     } >&2
 esac
 
-[[ -e /etc/init.d/networking ]] && \
-    /etc/init.d/networking stop && \
+[[ -e /etc/init.d/networking ]] && {
+    /etc/init.d/networking stop && 
     /etc/init.d/networking start
+} >/dev/null >&2
