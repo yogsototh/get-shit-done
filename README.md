@@ -18,3 +18,10 @@ Only it is written in `zsh` and should work also on Mac. Yeah, PHP sucks for thi
 8. Profit
 
 Good Work!
+
+# Annoyed by password?
+
+Edit `/etc/sudoers` by using `sudo visudo`.
+**At the end** of the file add:
+
+    userName ALL=(ALL) NOPASSWD: /path/to/get-shit-done
